@@ -124,7 +124,7 @@ body {
 
 .title {
   margin: 0;
-  font-size: 68px;
+  font-size: 88px;
   font-weight: 900;
   letter-spacing: -.02em;
   line-height: 1;
@@ -431,7 +431,7 @@ body {
 @media (max-width: 760px) {
   body { font-size: 16px; }
   .hero { aspect-ratio: auto; min-height: 0; padding: 64px 0 56px; }
-  .title { font-size: 46px; }
+  .title { font-size: 58px; }
   .subtitle { font-size: 20px; }
   .head { font-size: 26px; }
   .section { padding: 46px 0; }
