@@ -1,0 +1,5 @@
+# Large frame exports are not used by the project page.
+assets/Frame/
+
+# macOS metadata
+.DS_Store
