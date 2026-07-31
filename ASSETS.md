@@ -84,7 +84,7 @@ DexYCB 和 TACO 各 3 条；当前页面仅保留这些空白展示框，未导�
 
 | 文件 | 对应 | 用在哪 |
 | --- | --- | --- |
-| `background.png` | 你提供的宣传图 | 当前未使用；如需恢复首屏背景可重新接入 |
+| `background.png` | 你提供的宣传图 | 当前未使用；首屏改用动态帧墙背景 |
 | `teaser.png` | Fig. 1 | Hero 下方大图 |
 | `pipeline.png` | Fig. 2 | Method 一节主图 |
 | `compare_recon.png` | Fig. 4 | Method 轮播第 1 张（重建定性对比） |
@@ -94,9 +94,11 @@ DexYCB 和 TACO 各 3 条；当前页面仅保留这些空白展示框，未导�
 轮播用左右箭头 / 下方圆点 / 键盘方向键切换。加一张图 = 在 `index.html` 的
 `<div class="slides">` 里再抄一个 `<figure class="slide">`，圆点会自动多一个。
 
-### Hero 背景图（当前未启用）
+### Hero 动态帧墙
 
-当前首屏使用白色纯色背景；`background.png` 保留在素材目录中，尚未接入页面。
+首屏从 `assets/videos/` 的 8 组人类 / 机器人配对视频中各抽取 8 帧，共 128 张方形帧，
+保存于 `static/images/hero-frames/`。页面将每个操作的人类行与对应机器人行上下相邻排列，
+组成 16 行网格并从左向右无缝循环；白色半透明模糊蒙版和底部渐隐保证标题与按钮清晰可读。
 
 ## 4. 还需要你确认的文字
 
