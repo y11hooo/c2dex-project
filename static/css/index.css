@@ -77,7 +77,6 @@ body {
   height: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, .22);
   background: #e6e7e6;
 }
 
