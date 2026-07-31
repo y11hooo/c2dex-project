@@ -48,51 +48,6 @@ document.querySelectorAll(".vslot.blank").forEach((slot) => {
 });
 document.querySelectorAll(".vslot:not(.blank)").forEach((slot) => watch(fillSlot(slot)));
 
-// 首页动态帧墙：每个任务的人类行和机器人行上下配对，同速无缝向右滚动。
-const heroWall = document.querySelector(".hero-wall");
-if (heroWall) {
-  const heroTasks = [
-    "sweep", "put-cap", "drop", "wipe",
-    "nest-cups", "pour", "place", "stack-cups"
-  ];
-  const framesPerVideo = 8;
-  const repeatsPerSequence = 5;
-
-  function addHeroSequence(strip, task, source) {
-    const sequence = document.createElement("div");
-    sequence.className = "hero-sequence";
-    for (let repeat = 0; repeat < repeatsPerSequence; repeat += 1) {
-      for (let frame = 1; frame <= framesPerVideo; frame += 1) {
-        const tile = document.createElement("div");
-        tile.className = "hero-tile";
-        const image = document.createElement("img");
-        image.src = `static/images/hero-frames/${task}-${source}-${String(frame).padStart(2, "0")}.jpg`;
-        image.alt = "";
-        image.decoding = "async";
-        tile.appendChild(image);
-        sequence.appendChild(tile);
-      }
-    }
-    strip.appendChild(sequence);
-  }
-
-  heroTasks.forEach((task, index) => {
-    ["human", "robot"].forEach((source) => {
-      const row = document.createElement("div");
-      row.className = `hero-row hero-row-${source}`;
-      const strip = document.createElement("div");
-      strip.className = "hero-strip";
-      const duration = 76 + index * 3;
-      strip.style.setProperty("--row-duration", `${duration}s`);
-      strip.style.setProperty("--row-delay", `-${index * 7}s`);
-      addHeroSequence(strip, task, source);
-      addHeroSequence(strip, task, source);
-      row.appendChild(strip);
-      heroWall.appendChild(row);
-    });
-  });
-}
-
 // 图片轮播: 箭头 / 圆点 / 左右方向键
 document.querySelectorAll(".carousel").forEach((carousel) => {
   const slides = [...carousel.querySelectorAll(".slide")];
