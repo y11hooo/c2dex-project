@@ -60,21 +60,33 @@ ffmpeg -i raw.mov -an -c:v libx264 -crf 23 -vf "scale=1280:-2" \
 
 ## 2. 仿真结果（Simulation Results，当前保留空白槽位）
 
-每条序列一组三栏：人类输入视频 / 重定向后的灵巧手 / RL rollout。
-DexYCB 和 TACO 各 3 条；当前页面仅保留这些空白展示框，未导入 `assets/videos/`
-中的素材，也不会显示 `VIDEO PENDING`。
+每条序列一组两栏：人类输入视频 / RL rollout（**重定向那一栏已删掉**）。
+DexYCB 和 TACO 各 4 条，一行放两条序列。
 
-| 数据集 | 序列 | 人类视频 | 重定向 | Rollout |
-| --- | --- | --- | --- | --- |
-| DexYCB | 1 | `sim_dexycb_seq1_human.mp4` | `sim_dexycb_seq1_retarget.mp4` | `sim_dexycb_seq1_rollout.mp4` |
-| DexYCB | 2 | `sim_dexycb_seq2_human.mp4` | `sim_dexycb_seq2_retarget.mp4` | `sim_dexycb_seq2_rollout.mp4` |
-| DexYCB | 3 | `sim_dexycb_seq3_human.mp4` | `sim_dexycb_seq3_retarget.mp4` | `sim_dexycb_seq3_rollout.mp4` |
-| TACO | 1 | `sim_taco_seq1_human.mp4` | `sim_taco_seq1_retarget.mp4` | `sim_taco_seq1_rollout.mp4` |
-| TACO | 2 | `sim_taco_seq2_human.mp4` | `sim_taco_seq2_retarget.mp4` | `sim_taco_seq2_rollout.mp4` |
-| TACO | 3 | `sim_taco_seq3_human.mp4` | `sim_taco_seq3_retarget.mp4` | `sim_taco_seq3_rollout.mp4` |
+| 数据集 | 序列 | 人类视频 | Rollout |
+| --- | --- | --- | --- |
+| DexYCB | 1 | `assets/videos/sim/dexycb/seq1_human.mp4` | `assets/videos/sim/dexycb/seq1_rollout.mp4` |
+| DexYCB | 2 | `assets/videos/sim/dexycb/seq2_human.mp4` | `assets/videos/sim/dexycb/seq2_rollout.mp4` |
+| DexYCB | 3 | `assets/videos/sim/dexycb/seq3_human.mp4` | `assets/videos/sim/dexycb/seq3_rollout.mp4` |
+| DexYCB | 4 | `assets/videos/sim/dexycb/seq4_human.mp4` | `assets/videos/sim/dexycb/seq4_rollout.mp4` |
+| TACO | 1 | `assets/videos/sim/taco/seq1_human.mp4` | `assets/videos/sim/taco/seq1_rollout.mp4` |
+| TACO | 2 | `assets/videos/sim/taco/seq2_human.mp4` | `assets/videos/sim/taco/seq2_rollout.mp4` |
+| TACO | 3 | `assets/videos/sim/taco/seq3_human.mp4` | `assets/videos/sim/taco/seq3_rollout.mp4` |
+| TACO | 4 | `assets/videos/sim/taco/seq4_human.mp4` | `assets/videos/sim/taco/seq4_rollout.mp4` |
 
-`Sequence 1/2/3` 是占位标题，建议在 `index.html` 里换成真实序列名
+DexYCB 那 8 个文件已经在仓库里；**TACO 那 8 个还没有**（`assets/videos/sim/taco/`
+目录不存在），所以页面上 TACO 四条现在都是占位块。
+`seq*_retarget.mp4` 不再需要，不用准备。
+
+`Sequence 1/2/3/4` 是占位标题，建议在 `index.html` 里换成真实序列名
 （如 `taco_brush_brush_1`、`dexycb_20200709_s0_...`），方便读者对照论文。
+
+### 视频显示尺寸在哪调
+
+`assets/css/index.css` 里的 `.tasks`：现在是
+`repeat(auto-fit, minmax(430px, 1fr))`，一行两条序列，每个视频 ≈275px 宽。
+想一行只放一条序列（视频大一倍，≈560px）就换成 `grid-template-columns: 1fr`；
+想整体再大一圈，把 `:root` 里的 `--wrap: 1180px` 调大。
 
 ## 3. 图片（已从 PDF 里裁出，可替换）
 

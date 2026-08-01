@@ -467,23 +467,23 @@ body {
 
 /* ---------- 视频网格 ---------- */
 
+/* 一行两条序列。想改成一行一条(视频大一倍)就把下面这行换成
+   grid-template-columns: 1fr; */
 .tasks {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
-  gap: 30px 26px;
+  gap: 34px 24px;
   margin-bottom: 44px;
 }
 
 .task > h4 {
-  margin: 0 0 10px;
-  font-size: 18px;
+  margin: 0 0 12px;
+  font-size: 19px;
   font-weight: 700;
   text-align: center;
 }
 
-.vpair, .vtrio { display: grid; gap: 8px; }
-.vpair { grid-template-columns: 1fr 1fr; }
-.vtrio { grid-template-columns: repeat(3, 1fr); }
+.vpair { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 
 /* 单栏媒体块: 16:9 视口 + 底部标签 */
 .vslot {
@@ -595,8 +595,8 @@ body {
   .part-caption { padding: 2px 6px; font-size: 8px; letter-spacing: .05em; }
   .head { font-size: 26px; }
   .section { padding: 46px 0; }
-  .tasks { grid-template-columns: 1fr; }
-  .vtrio { grid-template-columns: 1fr; }
+  /* 窄屏容器比 430px 还窄, 不改成 1fr 的话网格会横向溢出 */
+  .tasks { grid-template-columns: 1fr; gap: 28px; }
   /* 窄屏两侧箭头改到内容上方压着, 不然视频被挤成两条 */
   .carousel { padding: 0 40px; }
   .cnav { width: 34px; height: 34px; font-size: 22px; }
