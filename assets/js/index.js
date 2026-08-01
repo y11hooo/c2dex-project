@@ -44,42 +44,6 @@ function watch(video) {
 
 document.querySelectorAll(".vslot").forEach((slot) => watch(fillSlot(slot)));
 
-// Hero 静态密铺帧墙：人类演示与对应机器人执行上下交替，不做横向滚动。
-const heroWall = document.querySelector(".hero-wall");
-if (heroWall) {
-  const heroPairs = [
-    ["Human_Sweep", "Robot_Sweep"],
-    ["Human_cap_3", "Robot_Cap"],
-    ["Human_Pour", "Robot_pour"],
-    ["Human_eraser_15", "Robot_eraser"],
-    ["Human_drop_litter", "Robot_Drop_Litter"],
-    ["Human_brush_5", "Robot_Brush_5"]
-  ];
-  const frameNumbers = ["0000", "0014", "0028", "0042", "0056", "0070", "0084", "0098", "0112", "0126", "0140", "0154"];
-
-  heroPairs.flat().forEach((source, rowIndex) => {
-    const row = document.createElement("div");
-    row.className = "hero-row";
-    frameNumbers.forEach((frameNumber, tileIndex) => {
-      const tile = document.createElement("div");
-      tile.className = "hero-tile";
-      const image = document.createElement("img");
-      image.src = `assets/Frame/${source}/frame_${frameNumbers[(tileIndex + rowIndex) % frameNumbers.length]}.png`;
-      image.alt = "";
-      image.decoding = "async";
-      image.addEventListener("error", () => {
-        if (!image.dataset.fallback) {
-          image.dataset.fallback = "true";
-          image.src = `assets/Frame/${source}/frame_0000.png`;
-        }
-      });
-      tile.appendChild(image);
-      row.appendChild(tile);
-    });
-    heroWall.appendChild(row);
-  });
-}
-
 // 轮播(图片 / 视频任务通用): 箭头 / 圆点 / 左右方向键
 const carousels = [...document.querySelectorAll(".carousel")].map((carousel) => {
   const slides = [...carousel.querySelectorAll(".slide")];
