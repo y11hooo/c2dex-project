@@ -1,6 +1,17 @@
 /* 视频槽位: static/videos/ 里有对应文件就播, 没有就显示占位块。
    把文件按 data-src 里的名字丢进去即可生效, 不需要改 HTML。 */
 
+/* 同一行(human / rollout)两个框取同一个比例, 不然左右高度对不齐。
+   取两者里最“高”的那个(比例数值最小), 另一个用 object-fit: cover 裁掉左右两侧 ——
+   宁可切边也不切上下, 因为上下更容易把手和物体切出画面。 */
+function syncPairAspect(pair) {
+  const slots = [...pair.querySelectorAll(".vslot")];
+  const ratios = slots.map((s) => parseFloat(s.dataset.ar)).filter((v) => v > 0);
+  if (!ratios.length) return;
+  const ar = Math.min(...ratios);
+  slots.forEach((s) => s.style.setProperty("--ar", ar));
+}
+
 function fillSlot(slot) {
   const src = slot.dataset.src;
   const label = slot.dataset.label || "";
@@ -20,6 +31,18 @@ function fillSlot(slot) {
       '<div class="ph"><div class="ph-title">VIDEO PENDING</div>' +
       '<div class="ph-file">' + src.split("/").pop() + "</div></div>");
   });
+
+  // 仿真那节: 框的比例跟着素材走, 免得 16:9 的框把画面裁掉或者留出黑边。
+  // 真机轮播不参与, 那边有竖屏素材, 统一 16:9 更整齐。
+  const pair = slot.closest(".tasks .vpair");
+  if (pair) {
+    video.addEventListener("loadedmetadata", () => {
+      if (video.videoWidth && video.videoHeight) {
+        slot.dataset.ar = video.videoWidth / video.videoHeight;
+        syncPairAspect(pair);
+      }
+    });
+  }
 
   slot.appendChild(video);
   if (label) {

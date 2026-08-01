@@ -61,7 +61,7 @@ ffmpeg -i raw.mov -an -c:v libx264 -crf 23 -vf "scale=1280:-2" \
 ## 2. 仿真结果（Simulation Results，当前保留空白槽位）
 
 每条序列一组两栏：人类输入视频 / RL rollout（**重定向那一栏已删掉**）。
-DexYCB 和 TACO 各 4 条，一行放两条序列。
+DexYCB 4 条、TACO 6 条，一行放两条序列。
 
 | 数据集 | 序列 | 人类视频 | Rollout |
 | --- | --- | --- | --- |
@@ -73,13 +73,49 @@ DexYCB 和 TACO 各 4 条，一行放两条序列。
 | TACO | 2 | `assets/videos/sim/taco/seq2_human.mp4` | `assets/videos/sim/taco/seq2_rollout.mp4` |
 | TACO | 3 | `assets/videos/sim/taco/seq3_human.mp4` | `assets/videos/sim/taco/seq3_rollout.mp4` |
 | TACO | 4 | `assets/videos/sim/taco/seq4_human.mp4` | `assets/videos/sim/taco/seq4_rollout.mp4` |
+| TACO | 5 | `assets/videos/sim/taco/seq5_human.mp4` | `assets/videos/sim/taco/seq5_rollout.mp4` |
+| TACO | 6 | `assets/videos/sim/taco/seq6_human.mp4` | `assets/videos/sim/taco/seq6_rollout.mp4` |
 
-DexYCB 那 8 个文件已经在仓库里；**TACO 那 8 个还没有**（`assets/videos/sim/taco/`
-目录不存在），所以页面上 TACO 四条现在都是占位块。
+DexYCB 的 8 个、TACO 的 12 个都已就位。
 `seq*_retarget.mp4` 不再需要，不用准备。
 
-`Sequence 1/2/3/4` 是占位标题，建议在 `index.html` 里换成真实序列名
-（如 `taco_brush_brush_1`、`dexycb_20200709_s0_...`），方便读者对照论文。
+### TACO 视频是怎么来的
+
+`_human` 由 `/home/project/data/TACO/<seq>/rgb/%06d.png` 按各自
+`conf_seqs/<seq>.yaml` 里的 `data.load.start_frame` / `end_frame` 裁出
+（区间**左闭右开** `[start, end)`，见 `conf/data.yaml`），30fps、缩到 1280 宽、
+H.264 CRF 23 + faststart、无音轨。
+
+**末帧要砍掉**：rollout 渲染出来比区间少 1 帧，不砍的话左右两个视频时长差
+1/30 秒，各自 loop 会慢慢错开相位。所以实际帧数 = `end - start - 1`。
+
+| 页面编号 | 源序列 | 区间 | 帧数 | 时长 |
+| --- | --- | --- | --- | --- |
+| seq1 | `taco_brush_brush_1` | [48, 229) | 180 | 6.00s |
+| seq2 | `taco_brush_eraser_1` | [23, 102) | 78 | 2.60s |
+| seq3 | `taco_measure_ruler_1` | [35, 135) | 99 | 3.30s |
+| seq4 | `taco_pour-in-some_bowl_1` | [41, 137) | 95 | 3.17s |
+| seq5 | `taco_put-in_spoon_1` | [44, 135) | 90 | 3.00s |
+| seq6 | `taco_screw_screwdriver_3` | [27, 146) | 118 | 3.93s |
+
+注意其中 3 条配置里有被注释掉的旧值（如 `start_frame: 48 # 28`、
+`end_frame: 135 # 161`、`start_frame: 27 # 19`），取的是生效值。
+重新生成的话：
+
+```bash
+ffmpeg -framerate 30 -start_number <start> -i data/TACO/<seq>/rgb/%06d.png \
+       -frames:v <end-start-1> -an -vf "scale=1280:-2" \
+       -c:v libx264 -crf 23 -pix_fmt yuv420p -movflags +faststart \
+       assets/videos/sim/taco/seqN_human.mp4
+```
+
+`_rollout` 是 RL rollout 的渲染输出，原名形如
+`taco_brush_brush_1_ours_test_rollout17.mp4`，按上表编号改名而来，
+内容未做任何转码（2560×1874、h264、faststart，比 `_human` 大一倍，
+展示尺寸下看不出区别）。
+
+页面标题仍是 `Sequence 1…6` 占位；想让读者对照论文，可在 `index.html` 里把
+`<h4>` 换成上表的源序列名。
 
 ### 视频显示尺寸在哪调
 
