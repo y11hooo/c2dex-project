@@ -10,10 +10,9 @@
 <body>
 
 <header class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-wall" aria-hidden="true"></div>
   <div class="wrap">
-    <div class="badge">RA-L 2026 Submission</div>
-    <h1 class="title">C2Dex</h1>
+    <h1 class="title"><img src="assets/images/c2dex-wordmark-transparent.png" alt="C2Dex"></h1>
     <h2 class="subtitle">Contact-Consistent Hand–Object Reconstruction and<br>
       Interaction-Preserving Retargeting for Video-to-Dexterity Learning</h2>
     <p class="authors">Anonymous Authors</p>
@@ -29,6 +28,19 @@
         <span class="ico">&#9671;</span> Code
       </span>
     </nav>
+    <div class="hero-overview" aria-labelledby="overview-title">
+      <p class="eyebrow hero-flow-title" id="overview-title">From Human Demonstrations to Robot Dexterity</p>
+      <div class="overview-card overview-animation" aria-label="Animated C2Dex pipeline overview">
+        <img class="part-image part-video" src="assets/images/group-part/Video.png" alt="Human demonstration video">
+        <span class="part-caption part-video-caption">Human Video</span>
+        <img class="part-image part-hoi-label" src="assets/images/group-part/NewHOI.png" alt="HOI reconstruction and contact point detection">
+        <img class="part-image part-hand" src="assets/images/group-part/HOI建模.png" alt="Reconstructed hand-object interaction">
+        <span class="part-caption part-hoi-caption">Reconstructed HOI</span>
+        <img class="part-image part-retarget-label" src="assets/images/group-part/NewRetarget.png" alt="Retargeting and policy training">
+        <img class="part-image part-robot" src="assets/images/group-part/机器人动作.png" alt="Dexterous robot executing the retargeted interaction">
+        <span class="part-caption part-robot-caption">Robot Execution</span>
+      </div>
+    </div>
   </div>
 </header>
 
