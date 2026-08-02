@@ -61,23 +61,49 @@ ffmpeg -i raw.mov -an -c:v libx264 -crf 23 -vf "scale=1280:-2" \
 ## 2. 仿真结果（Simulation Results，当前保留空白槽位）
 
 每条序列一组两栏：人类输入视频 / RL rollout（**重定向那一栏已删掉**）。
-DexYCB 4 条、TACO 6 条，一行放两条序列。
+DexYCB 7 条、TACO 6 条，一行放两条序列。文件都在
+`assets/videos/sim/<数据集>/seqN_{human,rollout}.mp4`。
 
-| 数据集 | 序列 | 人类视频 | Rollout |
-| --- | --- | --- | --- |
-| DexYCB | 1 | `assets/videos/sim/dexycb/seq1_human.mp4` | `assets/videos/sim/dexycb/seq1_rollout.mp4` |
-| DexYCB | 2 | `assets/videos/sim/dexycb/seq2_human.mp4` | `assets/videos/sim/dexycb/seq2_rollout.mp4` |
-| DexYCB | 3 | `assets/videos/sim/dexycb/seq3_human.mp4` | `assets/videos/sim/dexycb/seq3_rollout.mp4` |
-| DexYCB | 4 | `assets/videos/sim/dexycb/seq4_human.mp4` | `assets/videos/sim/dexycb/seq4_rollout.mp4` |
-| TACO | 1 | `assets/videos/sim/taco/seq1_human.mp4` | `assets/videos/sim/taco/seq1_rollout.mp4` |
-| TACO | 2 | `assets/videos/sim/taco/seq2_human.mp4` | `assets/videos/sim/taco/seq2_rollout.mp4` |
-| TACO | 3 | `assets/videos/sim/taco/seq3_human.mp4` | `assets/videos/sim/taco/seq3_rollout.mp4` |
-| TACO | 4 | `assets/videos/sim/taco/seq4_human.mp4` | `assets/videos/sim/taco/seq4_rollout.mp4` |
-| TACO | 5 | `assets/videos/sim/taco/seq5_human.mp4` | `assets/videos/sim/taco/seq5_rollout.mp4` |
-| TACO | 6 | `assets/videos/sim/taco/seq6_human.mp4` | `assets/videos/sim/taco/seq6_rollout.mp4` |
-
-DexYCB 的 8 个、TACO 的 12 个都已就位。
+**一对里两个视频的分辨率比例、帧率、帧数、时长必须一致**，差一点各自 loop
+就会越错越开。当前两组都是 30fps，DexYCB 4:3、TACO 1.365
+（对应 `assets/css/index.css` 里写死的 `--ar`）。
 `seq*_retarget.mp4` 不再需要，不用准备。
+
+### DexYCB 的对应关系
+
+`_rollout` 来自 `tmp_tools/render_toolkit/output/videos/`（用其中的 `.mp4`；
+同目录的 `.mov` 是带 alpha 的真 ProRes 4444，浏览器放不了，而且大几十倍）。
+渲染出来是 1280×960、15fps，重编码成 30fps 后改名放进来。
+`_human` 由 `data/DexYCB/<seq>/rgb/%06d.png` 按 `conf_seqs/<seq>.yaml` 的
+`[start_frame, end_frame)` 编码，640×480 原尺寸。**这些配置里的 `start_frame`
+是被注释掉的**（如 `# start_frame: 29`），生效的是 `conf/data.yaml` 的默认值
+`0`，所以一律从第 0 帧起算；`end_frame` 恰好等于 rgb 张数。
+
+**rollout 常常比配置区间短**（策略提前终止），human 跟着截到同样的帧数，
+保证左右严格同步；代价是那几条的人类演示后半段看不到。
+
+| 编号 | 源序列 | end_frame | 采用帧数 | 时长 |
+| --- | --- | --- | --- | --- |
+| seq1 | `20200709-subject-01_20200709_151757_836212060125` | 74 | 74 | 2.47s |
+| seq2 | `20200903-subject-04_20200903_103554_836212060125` | 74 | **63** | 2.10s |
+| seq3 | `20200903-subject-04_20200903_111701_836212060125` | 72 | **55** | 1.83s |
+| seq4 | `20200908-subject-05_20200908_143647_836212060125` | 74 | **66** | 2.20s |
+| seq5 | `20200908-subject-05_20200908_150810_836212060125` | 68 | 68 | 2.27s |
+| seq6 | `20200918-subject-06_20200918_120310_836212060125` | 72 | 72 | 2.40s |
+| seq7 | `20201002-subject-08_20201002_105731_836212060125` | 72 | **58** | 1.93s |
+
+seq5/seq6 的 rollout 原本比 rgb 多 1 帧（69>68、73>72），已截到与 rgb 相同。
+实测 rollout 第 k 帧对应 human 第 k 帧，不需要额外对齐。
+
+```bash
+# rollout: 15fps -> 30fps 并截断
+ffmpeg -i <render>.mp4 -vf "setpts=0.5*PTS" -r 30 -frames:v <N> -an \
+       -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart seqN_rollout.mp4
+# human: 原始帧直接编码
+ffmpeg -framerate 30 -start_number 0 -i data/DexYCB/<seq>/rgb/%06d.png \
+       -frames:v <N> -an -c:v libx264 -crf 23 -pix_fmt yuv420p \
+       -movflags +faststart seqN_human.mp4
+```
 
 ### TACO 视频是怎么来的
 
