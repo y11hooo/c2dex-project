@@ -82,37 +82,51 @@ DexYCB 的 8 个、TACO 的 12 个都已就位。
 ### TACO 视频是怎么来的
 
 `_human` 由 `/home/project/data/TACO/<seq>/rgb/%06d.png` 按各自
-`conf_seqs/<seq>.yaml` 里的 `data.load.start_frame` / `end_frame` 裁出
-（区间**左闭右开** `[start, end)`，见 `conf/data.yaml`），30fps、缩到 1280 宽、
-H.264 CRF 23 + faststart、无音轨。
+`conf_seqs/<seq>.yaml` 里的 `data.load.start_frame` / `end_frame` 裁出，
+缩到 1280 宽、H.264 CRF 23 + faststart、无音轨。
 
-**末帧要砍掉**：rollout 渲染出来比区间少 1 帧，不砍的话左右两个视频时长差
-1/30 秒，各自 loop 会慢慢错开相位。所以实际帧数 = `end - start - 1`。
+**一对里两个视频的帧率、帧数、时长必须完全相同**，差一点点各自 loop 就会
+越错越开。当前这批：**30fps**，帧数 = `end - start + 1`，即**闭区间**
+`[start, end]`（注意 `conf/data.yaml` 里训练用的区间是左闭右开的，
+渲染多出末尾一帧）。换一批 rollout 就重新对一次，别照抄下面的数。
 
 | 页面编号 | 源序列 | 区间 | 帧数 | 时长 |
 | --- | --- | --- | --- | --- |
-| seq1 | `taco_brush_brush_1` | [48, 229) | 180 | 6.00s |
-| seq2 | `taco_brush_eraser_1` | [23, 102) | 78 | 2.60s |
-| seq3 | `taco_measure_ruler_1` | [35, 135) | 99 | 3.30s |
-| seq4 | `taco_pour-in-some_bowl_1` | [41, 137) | 95 | 3.17s |
-| seq5 | `taco_put-in_spoon_1` | [44, 135) | 90 | 3.00s |
-| seq6 | `taco_screw_screwdriver_3` | [27, 146) | 118 | 3.93s |
+| seq1 | `taco_brush_brush_1` | [48, 229] | 182 | 6.07s |
+| seq2 | `taco_brush_eraser_1` | [23, 102] | 80 | 2.67s |
+| seq3 | `taco_measure_ruler_1` | [35, 135] | 101 | 3.37s |
+| seq4 | `taco_put-in_bowl_1` | [47, 125] | 79 | 2.63s |
+| seq5 | `taco_put-out_spoon_1` | [35, 103] | 69 | 2.30s |
+| seq6 | `taco_screw_screwdriver_3` | [27, 146] | 120 | 4.00s |
 
-注意其中 3 条配置里有被注释掉的旧值（如 `start_frame: 48 # 28`、
-`end_frame: 135 # 161`、`start_frame: 27 # 19`），取的是生效值。
-重新生成的话：
+注意其中几条配置里有被注释掉的旧值（如 `start_frame: 48 # 28`、
+`start_frame: 27 # 19`），取的是生效值。重新生成的话：
 
 ```bash
 ffmpeg -framerate 30 -start_number <start> -i data/TACO/<seq>/rgb/%06d.png \
-       -frames:v <end-start-1> -an -vf "scale=1280:-2" \
+       -frames:v <end-start+1> -an -vf "scale=1280:-2" \
        -c:v libx264 -crf 23 -pix_fmt yuv420p -movflags +faststart \
        assets/videos/sim/taco/seqN_human.mp4
 ```
 
 `_rollout` 是 RL rollout 的渲染输出，原名形如
-`taco_brush_brush_1_ours_test_rollout17.mp4`，按上表编号改名而来，
-内容未做任何转码（2560×1874、h264、faststart，比 `_human` 大一倍，
-展示尺寸下看不出区别）。
+`taco_brush_brush_1_ours_test_rollout14_15fps_prores4444.mp4`（文件名里的
+`prores4444` 是误导，实际封的是 h264 / yuv420p，浏览器能直接播）。
+渲染出来是 **15fps**，即半速播放；为了跟 `_human` 同步且是实时速度，
+按上表编号改名后重编码成 30fps：
+
+```bash
+ffmpeg -i <原文件> -vf "setpts=0.5*PTS" -r 30 -an \
+       -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart \
+       assets/videos/sim/taco/seqN_rollout.mp4
+```
+
+这里必须重编码。`-itsscale 0.5 -c copy` 虽然无损，但时间戳是缩放来的、
+不是严格等间隔（182 帧出来 6.100s 而非 6.067s），循环会漂；
+拆成裸 h264 再按 30fps 重封装则会丢帧（实测 182 → 178）。
+源是合成渲染，CRF 18 视觉无损，文件反而更小。
+
+分辨率 2560×1874，比 `_human` 大一倍，展示尺寸下看不出区别。
 
 页面标题仍是 `Sequence 1…6` 占位；想让读者对照论文，可在 `index.html` 里把
 `<h4>` 换成上表的源序列名。
